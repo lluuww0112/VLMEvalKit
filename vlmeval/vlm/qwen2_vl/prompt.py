@@ -35,7 +35,9 @@ class Qwen2VLPromptMixin:
             if dataset is not None and 'LEGO' in dataset:
                 return False
             return True
-        if dataset_type == 'Y/N' and dataset in {'HallusionBench', 'POPE'}:  # MME has it's own prompt
+        # HallusionBench must retain its dataset-native question prompt rather
+        # than receiving the Qwen adapter's forced Yes/No suffix.
+        if dataset_type == 'Y/N' and dataset in {'POPE'}:  # MME has its own prompt
             return True
         if dataset_type == 'VQA' and dataset not in {'MMVet', 'ChartQAPro', 'ChartQAPro_CoT', 'ChartQAPro_PoT', 'ChartMuseum'}:  # noqa: E501
             return True

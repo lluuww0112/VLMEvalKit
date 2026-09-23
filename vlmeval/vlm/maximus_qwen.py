@@ -218,12 +218,12 @@ class _MaximusQwen(Qwen2VLPromptMixin, BaseModel):
             max_new_tokens=self.generate_kwargs["max_new_tokens"],
             use_cache=True,
         )
-        # T2V and SFPruner pass compact ``inputs_embeds`` to ``generate``.
+        # These selection methods pass compact ``inputs_embeds`` to ``generate``.
         # In that code path GenerationMixin returns answer tokens only; slicing
-        # them by the *unpruned* input_ids length turns every SFPruner answer
+        # them by the *unpruned* input_ids length turns their answers
         # into an empty string.  Standard Qwen-style paths still return the
         # prompt followed by the answer and therefore need the usual slice.
-        if self.extra_generate_kind not in {"t2v", "sfpruner"}:
+        if self.extra_generate_kind not in {"t2v", "sfpruner", "divprune", "cdpruner", "random"}:
             generated = [output[len(source):] for source, output in zip(inputs.input_ids, generated)]
         return self.processor.batch_decode(
             generated, skip_special_tokens=True, clean_up_tokenization_spaces=False
@@ -242,6 +242,7 @@ class Qwen25T2V(_MaximusQwen):
 
 class Qwen25DivPrune(_MaximusQwen):
     default_selection_config = str(PROJECT_ROOT / "config" / "divprune.yaml")
+    extra_generate_kind = "divprune"
 
     from models.qwen.qwen_divprune_arch import Qwen25DivPruneForConditionalGeneration as model_class
     from models.qwen.qwen_divprune_arch import configure_divprune_model as configure_model
@@ -270,6 +271,7 @@ class Qwen25SFPruner(_MaximusQwen):
 
 class Qwen25Random(_MaximusQwen):
     default_selection_config = str(PROJECT_ROOT / "config" / "random.yaml")
+    extra_generate_kind = "random"
 
     from models.qwen.qwen_random_arch import Qwen25RandomForConditionalGeneration as model_class
     from models.qwen.qwen_random_arch import configure_random_model as configure_model
