@@ -61,7 +61,7 @@ class _MaximusQwen(Qwen2VLPromptMixin, BaseModel):
         dtype: object = "bf16",
         use_vllm: bool = False,
         use_custom_prompt: bool = True,
-        system_prompt: str | None = "You are a helpful assistant.",
+        system_prompt: str | None = None,
         verbose: bool = False,
         **kwargs,
     ):
@@ -218,9 +218,12 @@ class _MaximusQwen(Qwen2VLPromptMixin, BaseModel):
             max_new_tokens=self.generate_kwargs["max_new_tokens"],
             use_cache=True,
         )
-        # T2V uses inputs_embeds and returns generated tokens only.  The other
-        # methods return the complete sequence, as standard Qwen does.
-        if self.extra_generate_kind != "t2v":
+        # T2V and SFPruner pass compact ``inputs_embeds`` to ``generate``.
+        # In that code path GenerationMixin returns answer tokens only; slicing
+        # them by the *unpruned* input_ids length turns every SFPruner answer
+        # into an empty string.  Standard Qwen-style paths still return the
+        # prompt followed by the answer and therefore need the usual slice.
+        if self.extra_generate_kind not in {"t2v", "sfpruner"}:
             generated = [output[len(source):] for source, output in zip(inputs.input_ids, generated)]
         return self.processor.batch_decode(
             generated, skip_special_tokens=True, clean_up_tokenization_spaces=False
