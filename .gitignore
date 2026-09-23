@@ -217,6 +217,7 @@ SenseNova*
 
 temp
 result*
+!vlmeval/utils/result_transfer.py
 debug
 outputs
 scripts/data
