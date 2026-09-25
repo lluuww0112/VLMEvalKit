@@ -53,9 +53,9 @@ if LOCAL_WORLD_SIZE > 1 and len(GPU_LIST):
 
 # Register local adapters explicitly before this runner parses their custom
 # options (for example --selection-config), without a sitecustomize hook.
-from vlmeval.maximus import register_maximus_qwen
+from vlmeval.maximus import register_maximus_models
 
-register_maximus_qwen()
+register_maximus_models()
 
 from vlmeval.config import supported_VLM
 from vlmeval.dataset import build_dataset

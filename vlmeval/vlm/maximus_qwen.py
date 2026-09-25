@@ -184,7 +184,7 @@ class _MaximusQwen(Qwen2VLPromptMixin, BaseModel):
             extra = {
                 "t2v_token_ids": [" ".join(question.split())],
                 "t2v_images": self._raw_image_tensors(images)
-                if dense_method in {"internal", "maskclip", "sclip", "clearclip"} else None,
+                if dense_method in {"internal", "maskclip", "sclip", "clearclip", "siglip2"} else None,
             }
         elif self.extra_generate_kind == "cdpruner":
             selection = getattr(self, self.selection_attribute)
